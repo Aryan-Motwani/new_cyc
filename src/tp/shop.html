@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Image Upload and Gallery</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    h1, h2 {
+      text-align: center;
+    }
+    #uploadForm {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 30px;
+    }
+    input[type="file"] {
+      padding: 5px;
+    }
+    button {
+      padding: 10px 15px;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    #imageGallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 10px;
+      margin-top: 20px;
+    }
+    img {
+      width: 100%;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    .message {
+      text-align: center;
+      margin-top: 20px;
+      color: green;
+    }
+    .error {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+  <h1>Image Upload with Supabase</h1>
+
+  <!-- Upload Form -->
+  <div id="uploadForm">
+    <input type="file" id="fileInput" accept="image/*" />
+    <button id="uploadBtn">Upload Image</button>
+    <div id="message" class="message"></div>
+  </div>
+
+  <!-- Gallery -->
+  <h2>Uploaded Images</h2>
+  <div id="imageGallery"></div>
+
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+    const apiUrl = 'https://xoxzdjzrdyisyobvwjxc.supabase.co';
+    const apiKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhveHpkanpyZHlpc3lvYnZ3anhjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzE0MTk5MjYsImV4cCI6MjA0Njk5NTkyNn0.rGA8I9v3CZ35-bVj71-RAghjv3DqxG06T_Wo3W1ulps';
+
+    const supabase = createClient(apiUrl, apiKey);
+    const bucketName = 'signatures'; // Replace with your bucket name
+
+    async function uploadImage(file) {
+      const fileName = `${Date.now()}-${file.name}`;
+      const { data, error } = await supabase.storage.from(bucketName).upload(fileName, file);
+
+      if (error) {
+        console.log(error);
+        
+        document.getElementById('message').textContent = `Error: ${error.message}`;
+        document.getElementById('message').classList.add('error');
+        return;
+      }
+
+      document.getElementById('message').textContent = 'Image uploaded successfully!';
+      document.getElementById('message').classList.remove('error');
+      displayImages();
+    }
+
+    async function displayImages() {
+      const { data, error } = await supabase.storage.from(bucketName).list();
+
+      if (error) {
+        console.error('Error listing files:', error);
+        return;
+      }
+
+      const gallery = document.getElementById('imageGallery');
+      gallery.innerHTML = '';
+
+      data.forEach(async (file) => {
+        const { publicUrl } = supabase.storage.from(bucketName).getPublicUrl(file.name);
+        const img = document.createElement('img');
+        img.src = publicUrl;
+        img.alt = file.name;
+        gallery.appendChild(img);
+      });
+    }
+
+    document.getElementById('uploadBtn').addEventListener('click', () => {
+      const fileInput = document.getElementById('fileInput');
+      const file = fileInput.files[0];
+      if (file) {
+        uploadImage(file);
+      } else {
+        document.getElementById('message').textContent = 'Please select a file.';
+        document.getElementById('message').classList.add('error');
+      }
+    });
+
+    // Display images on page load
+    displayImages();
+  </script>
+</body>
+</html>

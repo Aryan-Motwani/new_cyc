@@ -1,0 +1,244 @@
+    {
+        "app_key": "w7qes154dkgo62bzrp8mufna9vhyx0it",
+        "app_secret": "537d86c9b83dae301080d40e01aebb070c7ffe27",
+        "access_token": "7ffd7e6da67afa84c712fd9ff8a304b6efe97f5e",
+        "orderinfo": {
+            "OrderInfo": {
+                "Restaurant": {
+                    "details": {
+                    "res_name": "CYC FOOD",
+                    "address": "2nd Floor, Reliance Mall, Nr.Akshar Chowk",
+                    "contact_information": "9427846660",
+                    "restID": "emx940d3"
+                    }
+                },
+            "Customer": {
+                "details": {
+                "email": "amar@gmail.com",
+                "name": "Amar",
+                "address": "2, Amin Society, Naranpura",
+                "phone": "9090909090",
+                "latitude": "34.11752681212772",
+                "longitude": "74.72949172653219"
+                }
+            },
+            "Order": {
+                "details": {
+                "orderID": "A-3",
+                "preorder_date": "2022-01-01",
+                "preorder_time": "15:50:00",
+                "service_charge": "0",
+                "sc_tax_amount": "0",
+                "delivery_charges": "50",
+                "dc_tax_percentage": "5",
+                "dc_tax_amount": "2.5",
+                "dc_gst_details": [
+                    {
+                    "gst_liable": "vendor",
+                    "amount": "2.5"
+                    },
+                    {
+                    "gst_liable": "restaurant",
+                    "amount": "0"
+                    }
+                ],
+                "packing_charges": "20",
+                "pc_tax_amount": "1",
+                "pc_tax_percentage": "5",
+                "pc_gst_details": [
+                    {
+                    "gst_liable": "vendor",
+                    "amount": "1"
+                    },
+                    {
+                    "gst_liable": "restaurant",
+                    "amount": "0"
+                    }
+                ],
+                "order_type": "H",
+                "ondc_bap" : "buyerAppName",
+                "advanced_order": "N",
+                "urgent_order": false,
+                "urgent_time" : 20,
+                "payment_type": "COD",
+                "table_no": "",
+                "no_of_persons": "0",
+                "discount_total": "45",
+                "tax_total": "65.52",
+                "discount_type": "F",
+                "total": "560",
+                "description": "",
+                "created_on": "2022-01-01 15:49:00",
+                "enable_delivery": 1,
+                "min_prep_time": 20,
+                "callback_url": "https.xyz.abc",
+                "collect_cash": "480",
+                "otp": "9876"
+                }
+            },
+            "OrderItem": {
+                "details": [
+                    {
+                        "id": "7765862",
+                        "name": "Garlic Bread (3Pieces)",
+                        "tax_inclusive": true,
+                        "gst_liability": "vendor",
+                        "item_tax": [
+                        {
+                            "id": "11213",
+                            "name": "CGST",
+                            "tax_percentage": "2.5",
+                            "amount": "3.15"
+                        },
+                        {
+                            "id": "20375",
+                            "name": "SGST",
+                            "tax_percentage": "2.5",
+                            "amount": "3.15"
+                        }
+                        ],
+                        "item_discount": "14",
+                        "price": "140.00",
+                        "final_price": "126",
+                        "quantity": "1",
+                        "description": "",
+                        "variation_name": "3Pieces",
+                        "variation_id": "89058",
+                        "AddonItem": {
+                        "details": [
+
+                        ]
+                        }
+                    },
+                    {
+                        "id": "118829149",
+                        "name": "Veg Loaded Pizza",
+                        "tax_inclusive": true,
+                        "gst_liability": "vendor",
+                        "item_tax": [
+                        {
+                            "id": "11213",
+                            "name": "CGST",
+                            "tax_percentage": "2.5",
+                            "amount": "2.75"
+                        },
+                        {
+                            "id": "20375",
+                            "name": "SGST",
+                            "tax_percentage": "2.5",
+                            "amount": "2.75"
+                        }
+                        ],
+                        "item_discount": "",
+                        "price": "110.00",
+                        "final_price": "110.00",
+                        "quantity": "1",
+                        "description": "",
+                        "variation_name": "",
+                        "variation_id": "",
+                        "AddonItem": {
+                        "details": [
+                            {
+                            "id": "1150783",
+                            "name": "Mojito",
+                            "group_name": "Add Beverage",
+                            "price": "0",
+                            "group_id": 135699,
+                            "quantity": "1"
+                            },
+                            {
+                            "id": "1150813",
+                            "name": "Cheese",
+                            "group_name": "Extra Toppings",
+                            "price": "10",
+                            "group_id": 135707,
+                            "quantity": "1"
+                            }
+                        ]
+                        }
+                    },
+                    {
+                        "id": "118807411",
+                        "name": "Chocolate Cake",
+                        "is_tax_inclusive": "0",
+                        "gst_liability": "restaurant",
+                        "item_tax": [
+                        {
+                            "id": "21866",
+                            "name": "CGST",
+                            "tax_percentage": "2.5",
+                            "amount": "25.11"
+                        },
+                        {
+                            "id": "21867",
+                            "name": "SGST",
+                            "tax_percentage": "2.5",
+                            "amount": "25.11"
+                        }
+                        ],
+                        "item_discount": "31",
+                        "price": "310.00",
+                        "final_price": "279",
+                        "quantity": "1",
+                        "description": "",
+                        "variation_name": "",
+                        "variation_id": "",
+                        "AddonItem": {
+                        "details": [
+
+                        ]
+                        }
+                    }
+                ]
+            },
+            "Tax": {
+                "details": [
+                {
+                    "id": "11213",
+                    "title": "CGST",
+                    "type": "P",
+                    "price": "2.5",
+                    "tax": "5.9",
+                    "restaurant_liable_amt": "0.00"
+                },
+                {
+                    "id": "20375",
+                    "title": "SGST",
+                    "type": "P",
+                    "price": "2.5",
+                    "tax": "5.9",
+                    "restaurant_liable_amt": "0.00"
+                },
+                {
+                    "id": "21866",
+                    "title": "CGST",
+                    "type": "P",
+                    "price": "9",
+                    "tax": "25.11",
+                    "restaurant_liable_amt": "25.11"
+                },
+                {
+                    "id": "21867",
+                    "title": "SGST",
+                    "type": "P",
+                    "price": "9",
+                    "tax": "25.11",
+                    "restaurant_liable_amt": "25.11"
+                }
+                ]
+            },
+            "Discount": {
+                "details": [
+                {
+                    "id": "362",
+                    "title": "Discount",
+                    "type": "F",
+                    "price": "45"
+                }
+                ]
+            }
+        },
+        "udid": "2323232",
+        "device_type": "Web"
+        }
+    }

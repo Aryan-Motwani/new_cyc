@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Supabase Tickets</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    table, th, td {
+      border: 1px solid #ddd;
+    }
+    th, td {
+      padding: 10px;
+      text-align: left;
+    }
+    th {
+      background-color: #f4f4f4;
+    }
+    .error {
+      color: red;
+      text-align: center;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Tickets</h1>
+  <div id="content">
+    <table id="ticketsTable">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Title</th>
+          <th>Status</th>
+          <th>Priority</th>
+          <th>Created At</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Rows will be dynamically added here -->
+      </tbody>
+    </table>
+    <div class="error" id="error"></div>
+  </div>
+
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+    const apiUrl = 'https://xoxzdjzrdyisyobvwjxc.supabase.co';
+    const apiKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhveHpkanpyZHlpc3lvYnZ3anhjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzE0MTk5MjYsImV4cCI6MjA0Njk5NTkyNn0.rGA8I9v3CZ35-bVj71-RAghjv3DqxG06T_Wo3W1ulps';
+
+    const supabase = createClient(apiUrl, apiKey);
+
+    async function fetchTickets() {
+      const { data, error } = await supabase.from('Tickets').select('*');
+
+      if (error) {
+        console.error('Error fetching tickets:', error);
+        document.getElementById('error').textContent = 'Error fetching tickets. Please check your console for details.';
+        return;
+      }
+
+      if (data.length === 0) {
+        document.getElementById('error').textContent = 'No tickets found.';
+        return;
+      }
+
+      const tbody = document.querySelector('#ticketsTable tbody');
+      tbody.innerHTML = ''; // Clear previous data
+
+      console.log(data);
+      
+      data.forEach(ticket => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${ticket.id}</td>
+          <td>${ticket.title}</td>
+          <td>${ticket.status}</td>
+          <td>${ticket.priority}</td>
+          <td>${ticket.created_at}</td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    // Fetch and display tickets on page load
+    fetchTickets();
+  </script>
+</body>
+</html>
