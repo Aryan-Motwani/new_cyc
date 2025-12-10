@@ -2,67 +2,70 @@ import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Plus, Minus } from "lucide-react";
 import AddressForm from './AddressForm';
+import { supabase } from "../createClient";
+import { image } from "framer-motion/client";
 
-const categories = [
-  {
-    name: "Protein",
-    title: "Select a main protein",
-    unit: "g",
-    baseAmount: 100,
-    options: [
-      { id: 1, name: "Low fat grilled cottage cheese steak", calories: 77, protein: 20, carbs: 10, fat: 15, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSojq2zBshtsAXKS1QwI9zrVvlIFMTpN-tcYw&s", price: 130 },
-      { id: 2, name: "Soya chunks/beans", calories: 90, protein: 7, carbs: 0, fat: 5, image: "https://foodfolksandfun.net/wp-content/uploads/2021/06/Best-Way-To-Grill-Chicken-Breasts.jpg", price: 80 },
-      { id: 3, name: "Grilled tofu edemame", calories: 77, protein: 20, carbs: 10, fat: 15, image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSojq2zBshtsAXKS1QwI9zrVvlIFMTpN-tcYw&s", price: 140 },
-    ],
-  },
-  {
-    name: "Carbs",
-    title: "Select Carbs",
-    unit: "g",
-    baseAmount: 50,
-    options: [
-      { id: 4, name: "Steamed white rice", calories: 130, protein: 1, carbs: 10, fat: 0, image: "https://thescattymum.com/wp-content/uploads/2023/05/how-to-make-carrot-sticks-1200.jpg", price: 80 },
-      { id: 5, name: "Steamed brown rice", calories: 109, protein: 2, carbs: 9, fat: 15, image: "https://www.yummymummykitchen.com/wp-content/uploads/2021/01/how-to-cut-avocado-03-720x540.jpg", price: 90 },
-      { id: 6, name: "Soya noodles", calories: 115, protein: 1, carbs: 9, fat: 0, image: "https://www.shutterstock.com/image-photo/falling-sliced-red-hot-chili-600nw-2176842815.jpg", price: 230 },
-      { id: 7, name: "Soba noodles", calories: 99, protein: 1, carbs: 9, fat: 0, image: "https://www.shutterstock.com/image-photo/falling-sliced-red-hot-chili-600nw-2176842815.jpg", price: 250 },
-      { id: 8, name: "Quinoa", calories: 120, protein: 1, carbs: 9, fat: 0, image: "https://www.shutterstock.com/image-photo/falling-sliced-red-hot-chili-600nw-2176842815.jpg", price: 150 },
-      { id: 9, name: "Whole wheat pasta", calories: 124, protein: 1, carbs: 9, fat: 0, image: "https://www.shutterstock.com/image-photo/falling-sliced-red-hot-chili-600nw-2176842815.jpg", price: 160 },
-      { id: 10, name: "Shirataki Noodles", calories: 119, protein: 1, carbs: 9, fat: 0, image: "https://www.shutterstock.com/image-photo/falling-sliced-red-hot-chili-600nw-2176842815.jpg", price: 150 },
-    ],
-  },
-  {
-    name: "GRAVIES / SAUCES",
-    title: "Select a sauce",
-    unit: "tsp",
-    baseAmount: 1,
-    options: [
-      { id: 11, name: "Makhni", calories: 141, protein: 7, carbs: 2.5, fat: 11, image: "https://easyfamilyrecipes.com/wp-content/uploads/2021/02/Homemade-BBQ-Sauce-Recipe.jpg", price: 80 },
-      { id: 12, name: "Tomato basil sauce", calories: 79, protein: 13, carbs: 1.8, fat: 2.5, image: "https://www.thebutterhalf.com/wp-content/uploads/2023/02/Chili-Sauce-6-500x500.jpg", price: 80 },
-      { id: 13, name: "Chilli garlic gravy", calories: 139, protein: 14, carbs: 3, fat: 9, image: "https://www.thebutterhalf.com/wp-content/uploads/2023/02/Chili-Sauce-6-500x500.jpg", price: 80 },
-      { id: 14, name: "Palak gravy", calories: 152, protein: 10, carbs: 4.5, fat: 11, image: "https://www.thebutterhalf.com/wp-content/uploads/2023/02/Chili-Sauce-6-500x500.jpg", price: 80 },
-    ],
-  },
-  {
-    name: "Extras",
-    title: "Select extras",
-    unit: "",
-    baseAmount: 1,
-    options: [
-      { id: 19, name: "Egg", calories: 70, protein: 6, carbs: 1, fat: 5, image: "https://www.foodtasticmom.com/wp-content/uploads/2016/10/easyeggs-feature.jpg", price: 80 },
-      { id: 20, name: "Cheese Slice", calories: 110, protein: 7, carbs: 1, fat: 9, image: "https://superbutcher.com.au/cdn/shop/files/62172-1-1540_1080x.jpg?v=1708927106", price: 80 },
-    ],
-  },
-  {
-    name: "Fiber",
-    title: "Select Fiber",
-    unit: "",
-    baseAmount: 1,
-    options: [
-      { id: 21, name: "Egg", calories: 70, protein: 6, carbs: 1, fat: 5, image: "https://www.foodtasticmom.com/wp-content/uploads/2016/10/easyeggs-feature.jpg", price: 80 },
-      { id: 22, name: "Cheese Slice", calories: 110, protein: 7, carbs: 1, fat: 9, image: "https://superbutcher.com.au/cdn/shop/files/62172-1-1540_1080x.jpg?v=1708927106", price: 80 },
-    ],
-  },
-];
+let categories = []
+async function getFormattedMealOptions() {
+  const { data, error } = await supabase
+    .from('meal_options')
+    .select('*');
+
+  if (error) {
+    console.error('Error fetching data:', error);
+    return [];
+  }
+
+  // Group options by category
+  const categories = {};
+  data.forEach(option => {
+    const {
+      category_name: name,
+      category_title: title,
+      unit,
+      base_amount: baseAmount,
+      id,
+      name: optionName,
+      calories,
+      protein,
+      carbs,
+      fat,
+      price,
+      image_url,
+      fiber
+    } = option;
+
+    if (!categories[name]) {
+      categories[name] = {
+        name,
+        title,
+        unit,
+        baseAmount,
+        options: []
+      };
+    }
+
+    categories[name].options.push({
+      id,
+      name: optionName,
+      calories,
+      protein,
+      carbs,
+      fat,
+      price,
+      image: image_url // Set image to empty string as requested
+    });
+  });
+
+  // Convert object to array
+  return Object.values(categories);
+}
+
+// Usage
+getFormattedMealOptions().then(formattedArray => {
+  categories = formattedArray;
+});
+
 
 export default function MyomMeal({ onBack, setPage, user, supabase }) {
   const [currentCategory, setCurrentCategory] = useState(0);
@@ -78,12 +81,126 @@ export default function MyomMeal({ onBack, setPage, user, supabase }) {
   const [selectedAddress, setSelectedAddress] = useState(null);
   const [showAddressForm, setShowAddressForm] = useState(false);
 
+  // const [showSubscriptionSetup, SetshowSubscriptionSetup] = useState(false);
+const [subscriptionDays, setSubscriptionDays] = useState(7);
+const [timeSlot, setTimeSlot] = useState("Morning");
+
+const [showSubscriptionSetup, setShowSubscriptionSetup] = useState(false);
+const [subscriptionDuration, setSubscriptionDuration] = useState(7);
+const [subscriptionTimeSlot, setSubscriptionTimeSlot] = useState('13:00');
+const [subscriptionCartList, setSubscriptionCartList] = useState([]);
+const [subscriptionTotals, setSubscriptionTotals] = useState({ price: 0 });
+
+const startSubscription = async () => {
+
+  const result = handlePayment();
+
+  if (result) {
+    console.log("Payment completed ✔");
+     const { data, error } = await supabase
+    .from('meal_subscriptions')
+    .insert([{
+      user_id: user.id,
+      start_date: new Date().toISOString(),
+      end_date: new Date(Date.now() + subscriptionDuration * 24 * 60 * 60 * 1000).toISOString(),
+      time_slot: subscriptionTimeSlot,
+      frequency: 5, // or based on user input
+      delivery_address: selectedAddress?.fullAddress || '',
+      status: 'active',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    }]);
+
+  if (error) {
+    console.error('Error saving subscription:', error);
+    addNotification("Error", "Failed to save subscription", "error");
+  } else {
+    addNotification("Success", "Subscription saved successfully", "success");
+    setShowSubscriptionSetup(false);
+  }
+  } else {
+    console.log("Payment failed ❌");
+    return
+  }
+
+ 
+};
+
+
+const saveSubscription = async () => {
+  // Insert subscription into meal_subscriptions table
+  const { data, error } = await supabase
+    .from('meal_subscriptions')
+    .insert([{
+      user_id: user.id,
+      start_date: new Date().toISOString(),
+      end_date: new Date(Date.now() + subscriptionDays * 24 * 60 * 60 * 1000).toISOString(),
+      time_slot: timeSlot,
+      frequency: 5, // or based on user input
+      delivery_address: selectedAddress?.fullAddress || '',
+      status: 'active',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    }]);
+
+  if (error) {
+    console.error('Error saving subscription:', error);
+    addNotification("Error", "Failed to save subscription", "error");
+  } else {
+    addNotification("Success", "Subscription saved successfully", "success");
+    setShowSubscriptionSetup(false);
+  }
+};
+
+
+
+
   const addNotification = (title, message, type = 'success') => {
     const id = Date.now();
     const newNotification = { id, title, message, type };
     setNotifications(prev => [...prev, newNotification]);
     setTimeout(() => setNotifications(prev => prev.filter(n => n.id !== id)), 4000);
   };
+  
+  const handlePayment = () => {
+  return new Promise((resolve) => {
+    // Load Razorpay script dynamically
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.async = true;
+    document.body.appendChild(script);
+
+    script.onload = () => {
+      const options = {
+        key: "rzp_live_RnqOet70XAGj0P",
+        amount: totals.price * 100,
+        currency: "INR",
+        name: "Your Meal",
+        description: "Custom Meal Order",
+        handler: function (response) {
+          console.log("Payment Success", response);
+          resolve(true);       // ⬅ return true on success
+        },
+        prefill: {
+          name: "Customer Name",
+          email: "customer@example.com",
+          contact: "9999999999",
+        },
+        theme: { color: "#F37254" },
+      };
+
+      const rzp = new window.Razorpay(options);
+
+      // ⬅ return false if user closes payment window or payment fails
+      rzp.on("payment.failed", function (response) {
+        console.log("Payment Failed", response);
+        resolve(false);
+      });
+
+      rzp.open();
+    };
+  });
+};
 
   useEffect(() => {
     const open = showCart || showQty;
@@ -127,31 +244,6 @@ export default function MyomMeal({ onBack, setPage, user, supabase }) {
     }
   };
 
-  const adjustCartQty = (catName, deltaSign) => {
-    setCart(prev => {
-      const newCart = [...prev];
-      const row = newCart[currentMealIndex][catName];
-      if (!row) return prev;
-      const cat = categories.find(c => c.name === catName);
-      const step = cat.baseAmount;
-      const nextQty = Math.max(step, (row.qty || step) + deltaSign * step);
-      newCart[currentMealIndex] = {
-        ...newCart[currentMealIndex],
-        [catName]: { ...row, qty: nextQty }
-      };
-      return newCart;
-    });
-  };
-
-  const removeFromCart = (catName) => {
-    setCart(prev => {
-      const newCart = [...prev];
-      const { [catName]: _, ...rest } = newCart[currentMealIndex];
-      newCart[currentMealIndex] = rest;
-      return newCart;
-    });
-  };
-
   const addMeal = () => {
     setCart(prev => [...prev, {}]);
     setCurrentMealIndex(prev => prev + 1);
@@ -162,7 +254,8 @@ export default function MyomMeal({ onBack, setPage, user, supabase }) {
   };
 
   const totals = useMemo(() => {
-    let calories = 0, protein = 0, carbs = 0, fat = 0, price = 0, items = 0;
+    let calories = 0, protein = 0, carbs = 0, fat = 0
+    , price = 0, items = 0;
     cart.forEach(meal => {
       for (const cat of categories) {
         const row = meal[cat.name];
@@ -190,7 +283,8 @@ export default function MyomMeal({ onBack, setPage, user, supabase }) {
   const itemMacros = (mealIndex, catName) => {
     const cat = categories.find(c => c.name === catName);
     const row = cart[mealIndex][catName];
-    if (!row) return { cals:0, p:0, c:0, f:0, price:0, qty:0, unit:cat.unit };
+    if (!row) return { cals:0, p:0, c:0, f:0
+      , price:0, qty:0, unit:cat.unit };
     const factor = row.qty / cat.baseAmount;
     return {
       cals: Math.round(row.option.calories * factor),
@@ -212,6 +306,11 @@ export default function MyomMeal({ onBack, setPage, user, supabase }) {
       addNotification("Error", "Your cart is empty", "error");
       return;
     }
+
+    const result = handlePayment();
+
+  if (result) {
+    console.log("Payment completed ✔");
     setIsPlacingOrder(true);
     try {
       const orderItems = [];
@@ -267,6 +366,12 @@ export default function MyomMeal({ onBack, setPage, user, supabase }) {
     } finally {
       setIsPlacingOrder(false);
     }
+  } else {
+    console.log("Payment failed ❌");
+    return
+  }
+
+    
   };
 
   const handleBackButton = () => {
@@ -274,51 +379,6 @@ export default function MyomMeal({ onBack, setPage, user, supabase }) {
     else if (setPage) setPage("menu");
     else window.history.back();
   };
-
-  const saveSubscription = async () => {
-  if (!user || cart.every(meal => Object.keys(meal).length === 0)) {
-    addNotification("Error", "Cart is empty or not logged in", "error");
-    return;
-  }
-
-  try {
-    // Prepare subscription data
-    const subscriptionData = {
-      user_id: user.id,
-      meal_plan: cart,
-      frequency: "weekly", // Default, can be set by user
-      created_at: new Date().toISOString(),
-      status: "active"
-    };
-
-    // Insert into subscriptions table
-    const { data, error } = await supabase
-      .from('subscriptions')
-      .insert([subscriptionData])
-      .select();
-
-    if (error) {
-      console.error('Supabase insert error:', error);
-      throw error;
-    }
-
-    if (!data || data.length === 0) {
-      console.error('No data returned from insert');
-      throw new Error('Subscription insert failed');
-    }
-
-    addNotification("Success", "Meal saved as subscription!", "success");
-
-    // Optionally, refresh subscriptions or update UI
-    // fetchUserSubscriptions();
-
-  } catch (error) {
-    console.error('Error saving subscription:', error);
-    addNotification("Error", "Failed to save subscription. Please try again.", "error");
-  }
-};
-
-
 
   return (
     <div className="pb-28 bg-gradient-to-br from-green-50 via-white to-green-50 min-h-screen">
@@ -389,7 +449,7 @@ export default function MyomMeal({ onBack, setPage, user, supabase }) {
                   : "bg-green-100 text-green-700 hover:bg-green-200"
               }`}
             >
-              {cat.name}
+              {cat.name.toUpperCase()}
             </button>
           ))}
         </div>
@@ -546,38 +606,39 @@ export default function MyomMeal({ onBack, setPage, user, supabase }) {
       </AnimatePresence>
 
       {/* Cart Drawer */}
-      <AnimatePresence>
-        {showCart && (
-          <motion.div
-            className="fixed inset-0 z-50"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+     {/* Cart Drawer */}
+<AnimatePresence>
+  {showCart && (
+    <motion.div
+      className="fixed inset-0 z-50"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+    >
+      <div className="absolute inset-0 bg-black/40" onClick={() => setShowCart(false)} />
+      <motion.div
+        role="dialog"
+        aria-modal="true"
+        initial={{ y: "100%" }}
+        animate={{ y: 0 }}
+        exit={{ y: "100%" }}
+        transition={{ type: "spring", stiffness: 220, damping: 26 }}
+        className="absolute bottom-0 left-0 right-0 max-w-screen-sm mx-auto bg-white rounded-t-3xl shadow-2xl flex flex-col"
+        style={{ maxHeight: "90vh" }}
+      >
+        <div className="p-4 border-b flex items-center justify-between sticky top-0 bg-white rounded-t-3xl">
+          <h3 className="font-semibold">{cartView === "items" ? "Your Cart" : "Checkout"}</h3>
+          <button
+            className="h-8 w-8 rounded-full grid place-items-center border"
+            onClick={() => setShowCart(false)}
+            aria-label="Close cart"
           >
-            <div className="absolute inset-0 bg-black/40" onClick={() => setShowCart(false)} />
-            <motion.div
-              role="dialog"
-              aria-modal="true"
-              initial={{ y: "100%" }}
-              animate={{ y: 0 }}
-              exit={{ y: "100%" }}
-              transition={{ type: "spring", stiffness: 220, damping: 26 }}
-              className="absolute bottom-0 left-0 right-0 max-w-screen-sm mx-auto bg-white rounded-t-3xl shadow-2xl flex flex-col"
-              style={{ maxHeight: "90vh" }}
-            >
-              <div className="p-4 border-b flex items-center justify-between sticky top-0 bg-white rounded-t-3xl">
-                <h3 className="font-semibold">{cartView === "items" ? "Your Cart" : "Checkout"}</h3>
-                <button
-                  className="h-8 w-8 rounded-full grid place-items-center border"
-                  onClick={() => setShowCart(false)}
-                  aria-label="Close cart"
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
-              <div className="overflow-y-auto" style={{ maxHeight: "calc(90vh - 64px - 148px)" }}>
-                {cartView === "items" ? (
-                  <div className="p-4 space-y-3">
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        <div className="overflow-y-auto" style={{ maxHeight: "calc(90vh - 64px - 148px)" }}>
+          {cartView === "items" ? (
+            <div className="p-4 space-y-3">
                     {cart.every(meal => Object.keys(meal).length === 0) ? (
                       <p className="text-sm text-neutral-500">Your cart is empty.</p>
                     ) : (
@@ -654,7 +715,7 @@ export default function MyomMeal({ onBack, setPage, user, supabase }) {
                       ))
                     )}
                   </div>
-                ) : (
+          ) : (
                   <div>
                     <div className="flex items-center justify-between mb-3">
                       <label className="block font-medium text-neutral-700">Delivery Address</label>
@@ -685,104 +746,169 @@ export default function MyomMeal({ onBack, setPage, user, supabase }) {
                     )}
                   </div>
                 )}
+        </div>
+        <div className="p-4 border-t bg-green-50 space-y-4 sticky bottom-0 rounded-b-3xl">
+          {cartView === "items" ? (
+            <>
+              <div className="mt-1 flex items-center justify-between">
+                <p className="text-base font-semibold">Total • ₹ {totals.price}</p>
+                <button onClick={handleConfirmOrder} className="px-4 py-3 rounded-2xl bg-gradient-to-r from-green-600 to-green-700 text-white text-sm font-medium">
+                  Proceed to Checkout
+                </button>
+                <button onClick={() => setShowSubscriptionSetup(true)} className="px-4 py-3 rounded-2xl bg-gradient-to-r from-blue-600 to-blue-700 text-white text-sm font-medium">
+                  Save as Subscription
+                </button>
               </div>
-              <div className="p-4 border-t bg-green-50 space-y-4 sticky bottom-0 rounded-b-3xl">
-                {cartView === "items" ? (
+            </>
+          ) : (
+            <>
+              <button
+                onClick={handleConfirmOrder}
+                disabled={isPlacingOrder || cart.every(meal => Object.keys(meal).length === 0)}
+                className="w-full py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-2xl font-medium active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {isPlacingOrder ? (
                   <>
-                    <div className="grid grid-cols-2 gap-2 text-sm">
-                      <div className="rounded-2xl bg-white border border-green-200 p-3">
-                        <p className="text-xs text-green-600">Calories</p>
-                        <p className="text-lg font-semibold text-green-800">{totals.calories} kcal</p>
-                      </div>
-                      <div className="rounded-2xl bg-white border border-green-200 p-3">
-                        <p className="text-xs text-green-600">Protein</p>
-                        <p className="text-lg font-semibold text-green-800">{totals.protein} g</p>
-                      </div>
-                      <div className="rounded-2xl bg-white border border-green-200 p-3">
-                        <p className="text-xs text-green-600">Carbs</p>
-                        <p className="text-lg font-semibold text-green-800">{totals.carbs} g</p>
-                      </div>
-                      <div className="rounded-2xl bg-white border border-green-200 p-3">
-                        <p className="text-xs text-green-600">Fats</p>
-                        <p className="text-lg font-semibold text-green-800">{totals.fats} g</p>
-                      </div>
-                    </div>
-                    <div className="mt-1 flex items-center justify-between">
-                      <p className="text-base font-semibold">Total • ₹ {totals.price}</p>
-                      <button
-                        disabled={totals.items === 0}
-                        onClick={() => setCartView("checkout")}
-                        className="px-4 py-3 rounded-2xl bg-gradient-to-r from-green-600 to-green-700 text-white text-sm font-medium active:scale-[0.99] disabled:opacity-50"
-                      >
-                        Proceed to Checkout
-                      </button>
-                      <button
-  onClick={saveSubscription}
-  className="w-full py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-2xl font-medium"
->
-  Save as Subscription
-</button>
-
-                    </div>
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    Placing Order...
                   </>
                 ) : (
-                  <>
-                    <button
-                      onClick={handleConfirmOrder}
-                      disabled={isPlacingOrder || cart.every(meal => Object.keys(meal).length === 0)}
-                      className="w-full py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-2xl font-medium active:scale-[0.98] disabled:opacity-50 flex items-center justify-center gap-2"
-                    >
-                      {isPlacingOrder ? (
-                        <>
-                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                          Placing Order...
-                        </>
-                      ) : (
-                        `Confirm Order • ₹${totals.price}`
-                      )}
-                    </button>
-                    <button
-                      onClick={() => setCartView("items")}
-                      className="w-full py-2 text-sm text-green-600 hover:text-green-700"
-                    >
-                      ← Back to Cart
-                    </button>
-                  </>
+                  `Confirm Order • ₹${totals.price}`
                 )}
+              </button>
+              <button
+                onClick={() => setCartView("items")}
+                className="w-full py-2 text-sm text-green-600 hover:text-green-700"
+              >
+                ← Back to Cart
+              </button>
+            </>
+          )}
+        </div>
+      </motion.div>
+    </motion.div>
+  )}
+</AnimatePresence>
+
+{/* Subscription Modal */}
+<AnimatePresence>
+{showSubscriptionSetup && (
+    <motion.div
+      className="fixed inset-0 z-50"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+    >
+      <div className="absolute inset-0 bg-black/40" onClick={() => setShowSubscriptionSetup(false)} />
+      <motion.div
+        initial={{ y: "100%" }}
+        animate={{ y: 0 }}
+        exit={{ y: "100%" }}
+        transition={{ type: "spring", stiffness: 220, damping: 26 }}
+        className="absolute bottom-0 left-0 right-0 max-w-screen-sm mx-auto bg-white rounded-t-3xl shadow-2xl"
+      >
+        <div className="p-6 space-y-6">
+          <div className="flex items-center justify-between">
+            <h3 className="text-xl font-bold text-neutral-900">Setup Subscription</h3>
+            <button
+              onClick={() => setShowSubscriptionSetup(false)}
+              className="p-2 rounded-full hover:bg-neutral-100"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+
+          {/* Duration Selection */}
+          <div>
+            <label className="block text-sm font-medium text-neutral-700 mb-3">
+              Subscription Duration
+            </label>
+            <div className="grid grid-cols-3 gap-3">
+              {[
+                { days: 7, label: '1 Week', popular: false },
+                { days: 15, label: '2 Weeks', popular: true },
+                { days: 26, label: '1 Month', popular: false }
+              ].map(option => (
+                <button
+                  key={option.days}
+                  onClick={() => setSubscriptionDuration(option.days)}
+                  className={`p-4 rounded-xl border-2 text-center relative ${
+                    subscriptionDuration === option.days
+                      ? 'border-green-500 bg-green-50 text-green-700'
+                      : 'border-neutral-200 hover:border-neutral-300'
+                  }`}
+                >
+                  {option.popular && (
+                    <span className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-green-500 text-white text-xs px-2 py-1 rounded-full">
+                      Popular
+                    </span>
+                  )}
+                  <div className="font-bold text-lg">{option.days} Days</div>
+                  <div className="text-sm text-neutral-600">{option.label}</div>
+                  <div className="text-sm font-semibold text-green-600 mt-1">
+                    ₹{totals.price * option.days}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Time Slot Selection */}
+          <div>
+            <label className="block text-sm font-medium text-neutral-700 mb-3">
+              Delivery Time
+            </label>
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                { slot: '13:00', label: 'Lunch', time: '1:00 PM' },
+                { slot: '19:00', label: 'Dinner', time: '7:00 PM' }
+              ].map(option => (
+                <button
+                  key={option.slot}
+                  onClick={() => setSubscriptionTimeSlot(option.slot)}
+                  className={`p-4 rounded-xl border-2 text-center ${
+                    subscriptionTimeSlot === option.slot
+                      ? 'border-green-500 bg-green-50 text-green-700'
+                      : 'border-neutral-200 hover:border-neutral-300'
+                  }`}
+                >
+                  <div className="font-bold">{option.label}</div>
+                  <div className="text-sm text-neutral-600">{option.time}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Summary */}
+          <div className="bg-green-50 p-4 rounded-xl">
+            <h4 className="font-bold text-green-800 mb-2">Subscription Summary</h4>
+            <div className="text-sm space-y-1 text-green-700">
+              <p><strong>{1}</strong> meals per day</p>
+              <p><strong>₹{totals.price}</strong> per day</p>
+              <p><strong>{subscriptionDuration} days</strong> duration</p>
+              <p><strong>{subscriptionTimeSlot === '13:00' ? '1:00 PM' : '7:00 PM'}</strong> delivery</p>
+              <div className="border-t border-green-200 mt-2 pt-2">
+                <p className="font-bold text-lg">Total: ₹{totals.price * subscriptionDuration}</p>
               </div>
-              <AnimatePresence>
-                {showAddressForm && (
-                  <motion.div
-                    className="fixed inset-0 z-60 bg-black/40"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    onClick={() => setShowAddressForm(false)}
-                  >
-                    <div className="flex items-center justify-center min-h-screen p-4">
-                      <motion.div
-                        initial={{ scale: 0.95, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        exit={{ scale: 0.95, opacity: 0 }}
-                        onClick={(e) => e.stopPropagation()}
-                        className="w-full max-w-md"
-                      >
-                        <AddressForm
-                          onSubmit={(address) => {
-                            setSelectedAddress(address);
-                            setShowAddressForm(false);
-                          }}
-                          initialAddress={selectedAddress}
-                        />
-                      </motion.div>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            </div>
+          </div>
+
+          {/* Confirm Button */}
+          <button
+            onClick={startSubscription}
+            className="w-full bg-gradient-to-r from-green-600 to-green-700 text-white py-4 rounded-xl font-bold text-lg hover:from-green-700 hover:to-green-800 transition-all"
+          >
+            Start Subscription - ₹{totals.price * subscriptionDuration}
+          </button>
+        </div>
+      </motion.div>
+    </motion.div>
+  
+
+)}
+</AnimatePresence>
+
+
 
       <style>{`
         .no-scrollbar::-webkit-scrollbar { display: none; }

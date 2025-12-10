@@ -17,7 +17,7 @@ import {
 import { supabase } from '../createClient';
 
 const CATEGORIES = [
-  "Wraps", "Bowls", "Pizzas", "Mains", "Snacks", "Drinks", "Salads", "Desserts"
+  "House Bowl", "Non Veg", "Wraps Around", "House Salad", "House Healthy Diet Shakes & Smoothies"
 ];
 
 export default function MenuEdit() {

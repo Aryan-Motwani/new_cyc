@@ -263,7 +263,7 @@ const filteredOrders = allOrders.filter(order => {
                                     <p className="font-semibold">{item.title}</p>
                                     <p className="text-sm text-slate-600">Quantity: {item.qty}</p>
                                   </div>
-                                  <div className="font-bold">₹{(item.price * item.qty).toFixed(2)}</div>
+                                  {/* <div className="font-bold">₹{(item.price * item.qty).toFixed(2)}</div> */}
                                 </div>
                               ))}
                             </div>
